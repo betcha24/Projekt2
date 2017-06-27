@@ -1,0 +1,11 @@
+4
+A
+B
+C
+D
+5
+D>B
+B>A
+A>D
+D>C
+C>B
