@@ -78,13 +78,13 @@ public class Graf {
      * @param c nazev vrcholu
      * @return Index vrcholu
      */
-    public int index(String c) {
-        int i = 0;
-        for (Vrchol v : grafVertex) {
-            if (v.name.equals(c)) {
-                return i;
+    public int index(String c) { 
+        int i = 0; //index vrcholu
+        for (Vrchol v : grafVertex) { //prohledava vsechny vrcholy v poly grafVertex
+            if (v.name.equals(c)) {   
+                return i;   //nazev vrcholu se rovna vstupnimu nazvu vrcholu, nasli jsme hledany index i
             }
-            i++;
+            i++; //jinak index i zvedneme o 1
         }
         return -1;
     }
@@ -95,7 +95,7 @@ public class Graf {
      * @param start startnovni vrchol
      * @return seznam objevenych vrcholu
      */
-    public LinkedList<String> wayGrafSouvislost(String start) {
+    public LinkedList<String> wayGrafSouvislost(String start) { //metoda na prohledavani grafu do hloubky MDFS 
         LinkedList<String> souvislost = new LinkedList<>();
         Queue<String> fronta = new LinkedList<>();
         souvislost.add(start);
@@ -112,7 +112,6 @@ public class Graf {
             }
             String p = null;
             for (int j = matice.length - 1; j >= 0; j--) {//pruchod matici 
-
                 if (matice[i][j] == 1) {
                     p = grafVertex[j].name;
                     for (Vrchol v : grafVertex) {
@@ -140,9 +139,9 @@ public class Graf {
      * @return vrati true ak uz vrchol nema souseda
      */
     boolean edges(int index) {
-        int sum = 0;
+        int sum = 0; //pocet sousedu vrcholu na pozici index v poly grafVertex
         for (int i = 0; i <= matice.length - 1; i++) {
-            sum += matice[index][i];
+            sum += matice[index][i]; 
         }
         return (sum != 0);
     }
@@ -154,41 +153,40 @@ public class Graf {
      * @return spojovy seznam eulerovske kruznice
      */
     public LinkedList<String> eulerCircle(String start) {
-        String s = "";
-        LinkedList<String> euler = new LinkedList<String>();
-        LinkedList<String> eulerPom = new LinkedList<>();
-        euler.push(start);
-        int i = 0;
-        int k = 0;
-        while (!euler.isEmpty()) {
-            Vrchol v1 = null;//pomocny vrchol
-
-            String c = euler.pop();
-            euler.push(c);
-            for (Vrchol v : grafVertex) {
-                if (v.name.equals(c)) {
-                    i = index(v.name);
-                }
+        
+        LinkedList<String> euler = new LinkedList<String>();     //pomocni seznam
+        LinkedList<String> eulerPom = new LinkedList<String>();  //vysledni eulerovska kruznice
+        euler.push(start);      //vlozi do pomocniho seznamu vrchol odkud zacina
+        int i = 0;              //index vrcholu v poly       
+        int k = 0;              
+        while (!euler.isEmpty()) {//Opakuje dokud seznam "euler" neni prazdny 
+            
+            String c = euler.pop();  //Vyndame vrchol na prvni pozici do pomocne promenne c.
+            euler.push(c);           //Vrchol vlozime zpatky do seznamu.
+            for (Vrchol v : grafVertex) {  //Pro vsechny vrcholy v grafu overime,
+                if (v.name.equals(c)) {    //jestli se nazev vrcholu rovna pomocni promenne c,
+                    i = index(v.name);     //kdyz najde shodu, do pomocne promenne i priradi index vrcholu z pola vrcholu
+                }  //jinak nedela nic.
             }
-            if (edges(i)) {
-                for (int j = 0; j <= matice.length - 1; j++) {
-                    if (matice[i][j] == 1) {
-                        k = j;
+            if (edges(i)) { //Zjisti jesli vrchol ma sousedov
+                for (int j = 0; j <= matice.length - 1; j++) {            
+                    if (matice[i][j] == 1) {  //prohledavanim najde souseda
+                        k = j;      //priradi index souseda do promenne k
                         break;
                     }
                 }
-                euler.push(grafVertex[k].name);
-                matice[i][k] = 0;
-                matice[k][i] = 0;
-            } else {
+                euler.push(grafVertex[k].name);    //Vrchol vlozi do pomocniho seznamu
+                matice[i][k] = 0;                  //Vymaze hranu
+                matice[k][i] = 0;                  //v obou smerech 
+            } else { //Vrchol jiz nema zadne dalsi sousedy vlozi ho do seznamu
                 if (oriented) {
-                    eulerPom.addFirst(euler.pop());
+                    eulerPom.addFirst(euler.pop()); //vklada vrchol na zacatek seznamu(vytahuje vrchol z pomocniho seznamu "euler")
                 } else {
-                    eulerPom.add(euler.pop());
+                    eulerPom.add(euler.pop());     //vklada vrchol na konec seznamu(eulerPom.addLast(euler.pop))
                 }
             }
         }
-        return eulerPom;
+        return eulerPom;        //vraci vysledni eulerovsky seznam
     }
 
     /**
@@ -197,27 +195,26 @@ public class Graf {
      * @return true jestli je graf eulerovsky
      */
     boolean isEuler(String start) {
-        int souvislost = wayGrafSouvislost(start).size();
-        if (souvislost != grafVertex.length) {
-            System.out.println("Graf neni souvislej.");
+        int souvislost = wayGrafSouvislost(start).size(); //velkost seznamu pri prohledavani grafu do hloubky
+        if (souvislost != grafVertex.length) { //zjisti jestli se velkost seznamu rovna poctu vrcholu v poly
+            System.out.println("Graf neni souvislej.");//nerovna => graf neni souvislej => eulerovsky
             return false;
-        } else {
-            if (!oriented) {
-                for (int i = 0; i <= grafVertex.length - 1; i++) {
-                    if (getTopDegreeInput(i) % 2 != 0) {
+        } else { 
+            if (!oriented) { //jestli je graf souvisly neorientovany
+                for (int i = 0; i <= grafVertex.length - 1; i++) { //prochazi vsechny vrcholy grafu
+                    if (getTopDegreeInput(i) % 2 != 0) { //vsechny vrcholy musi byt sudyho stupne
                         System.out.println("Nasel jsem vrchol, ktery neni sudeho stupne.");
-                        return false;
+                        return false; // nektery z vrcholu neni sudeho stupne => graf neni eulerovsky
                     }
                 }
-            } else {
-                if (!degreesOfVertex()) {
+            } else { //pro souvisly orientovany graf
+                if (!degreesOfVertex()) { //zjisti jestli se pocet vstupnich hran rovna poctu vystupnich pro vsechny vrcholy v poly grafVertex
                     System.out.println("Vstupni stupen vrcholu se nerovna vystupnimu");
-                    return false;
-
+                    return false; // vstupni stupen se nerovna vystupnimu => graf neni eulerovsky
                 }
             }
         }
-        return true;
+        return true; //graf je eulerovsky
     }
 
     /**
@@ -253,7 +250,7 @@ public class Graf {
      */
     boolean degreesOfVertex() {
         for (int i = 0; i <= grafVertex.length - 1; i++) {
-            if (getTopDegreeInput(i) != getTopDegreeOutput(i)) {
+            if (getTopDegreeInput(i) != getTopDegreeOutput(i)) { //zjisti jestli se pocet vstupnich hran rovna poctu vystupnich hran
                 return false;
             }
         }
